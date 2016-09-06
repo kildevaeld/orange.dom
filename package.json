@@ -1,6 +1,6 @@
 {
   "name": "orange.dom",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "",
   "main": "lib/index.js",
   "scripts": {
@@ -24,13 +24,13 @@
   "jspm": {
     "format": "amd",
     "registry": "github",
-    "main": "dist/amd/index.js",
+    "main": "index.js",
+    "directories": {
+      "lib": "dist/amd"
+    },
     "dependencies": {
       "orange": "github:kildevaeld/orange@master"
     }
-  },
-  "directories": {
-    "lib": "dist/amd"
   },
   "typings": "lib/index"
 }
