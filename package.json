@@ -1,0 +1,36 @@
+{
+  "name": "orange.dom",
+  "version": "0.0.1",
+  "description": "",
+  "main": "lib/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "orange": "git+https://github.com/kildevaeld/orange.git"
+  },
+  "devDependencies": {
+    "babel-preset-es2015": "^6.14.0",
+    "gulp": "^3.9.1",
+    "gulp-babel": "^6.1.2",
+    "gulp-rename": "^1.2.2",
+    "gulp-typescript": "^2.13.6",
+    "gulp-uglify": "^2.0.0",
+    "merge2": "^1.0.2",
+    "webpack-stream": "^3.2.0"
+  },
+  "jspm": {
+    "format": "amd",
+    "registry": "github",
+    "main": "dist/amd/index.js",
+    "dependencies": {
+      "orange": "github:kildevaeld/orange@master"
+    }
+  },
+  "directories": {
+    "lib": "dist/amd"
+  },
+  "typings": "lib/index"
+}
