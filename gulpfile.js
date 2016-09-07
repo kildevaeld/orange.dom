@@ -66,7 +66,7 @@ gulp.task('bundle', ['typescript'], () => {
         
         output: {
             libraryTarget: 'umd',
-            library: ['orange.dom'],
+            library: ['orange','dom'],
             filename: 'orange.dom.js'
         },
        
