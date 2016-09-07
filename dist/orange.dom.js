@@ -521,7 +521,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            var retry = function retry() {
 	                setTimeout(function () {
 	                    if (_this.__resolved) return;
-	                    if (_this.getIsImageComplete()) {
+	                    if (_this.img.naturalWidth > 0) {
 	                        _this.__resolved = true;
 	                        return _this.onload(null);
 	                    } else if (retries > 0) {

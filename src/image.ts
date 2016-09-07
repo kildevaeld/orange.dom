@@ -22,7 +22,7 @@ class LoadedImage {
     const retry = () => {
         setTimeout(() => {
             if (this.__resolved) return;
-            if (this.getIsImageComplete()) {
+            if (this.img.naturalWidth > 0) {
                 this.__resolved = true;
                 return this.onload(null);
             } else if (retries > 0) {
