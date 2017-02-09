@@ -6,6 +6,7 @@ export declare function undelegate(elm: HTMLElement | string, selector: string, 
 export declare function addClass(elm: HTMLElement, className: string): void;
 export declare function removeClass(elm: HTMLElement, className: string): void;
 export declare function hasClass(elm: HTMLElement, className: string): boolean;
+export declare function toggleClass(elm: HTMLElement, classNames: string): void;
 export declare function selectionStart(elm: HTMLInputElement): number;
 export declare function transitionEnd(elm: Element, fn: (event: TransitionEvent) => void, ctx?: any, duration?: number): void;
 export declare function animationEnd(elm: Element, fn: (event: AnimationEvent) => void, ctx?: any, duration?: number): void;

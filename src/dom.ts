@@ -1,5 +1,5 @@
 // TODO: CreateHTML
-import {indexOf, unique, slice, isObject, Promise, IPromise} from 'orange'
+import {indexOf, unique} from 'orange'
 
 var ElementProto: any = (typeof Element !== 'undefined' && Element.prototype) || {};
 
@@ -153,6 +153,24 @@ export function hasClass(elm: HTMLElement, className: string) {
   }
   var reg = new RegExp('\b' + className)
   return reg.test(elm.className)
+}
+
+function toggler(elm) {
+  if (elm.classList) return function(className:string) {
+    return elm.classList.toggle(className);
+  }
+  return function(className:string) {
+    if (hasClass(elm, className)) return removeClass(elm, className);
+    return addClass(elm, className);
+  }
+}
+
+export function toggleClass(elm: HTMLElement, classNames: string) {
+  let classList = classNames.split(' ');
+  let toggle = toggler(elm);
+  for (let i = 0, ii = classList.length; i < ii; i++) {
+    toggle(classList[i]);
+  }
 }
 
 export function selectionStart(elm: HTMLInputElement): number {

@@ -1,12 +1,9 @@
-import {isObject, isString, slice} from 'orange';
+import { isObject, slice } from 'orange';
 import * as dom from './dom';
-
-var domEvents;
 
 var singleTag = /^<([a-z][^\/\0>:\x20\t\r\n\f]*)[\x20\t\r\n\f]*\/?>(?:<\/\1>|)$/i;
 
-
-function parseHTML(html:string): HTMLElement {
+function parseHTML(html: string): HTMLElement {
   let parsed = singleTag.exec(html);
   if (parsed) {
     return document.createElement(parsed[0]);
@@ -17,7 +14,9 @@ function parseHTML(html:string): HTMLElement {
   return element as HTMLElement;
 }
 
-export class Html {
+const domEvents: Map<Element, {event:string;callback:(e:Event) => void}[]> = new Map();
+
+export class Html implements Iterable<Element> {
 
   static query(query: string | HTMLElement | NodeList, context?: string | HTMLElement | NodeList): Html {
     if (typeof context === 'string') {
@@ -27,8 +26,8 @@ export class Html {
     let els: HTMLElement[];
     if (typeof query === 'string') {
 
-      if (query.length > 0 && query[0] === '<' && query[ query.length - 1 ] === ">" 
-        && query.length >= 3 ) {
+      if (query.length > 0 && query[0] === '<' && query[query.length - 1] === ">"
+        && query.length >= 3) {
         return new Html([parseHTML(query)]);
       }
 
@@ -52,6 +51,20 @@ export class Html {
     return new Html(els);
   }
 
+  static removeAllEventListeners() {
+    for (let el of domEvents.keys()) {
+      let entries = domEvents.get(el);
+      for (let entry of entries) {
+        dom.removeEventListener(el, entry.event, entry.callback);
+      }
+      domEvents.delete(el);
+    }
+  }
+
+  static _domEvents() {
+    return domEvents;
+  }
+
   private _elements: HTMLElement[];
 
   get length(): number {
@@ -64,7 +77,7 @@ export class Html {
   }
 
   get(n: number): HTMLElement {
-    n = n === undefined ? 0 : n;
+    n = (n === undefined || n < 0) ? 0 : n;
     return n >= this.length ? undefined : this._elements[n];
   }
 
@@ -86,6 +99,13 @@ export class Html {
     }, false);
   }
 
+  toggleClass(str: string): Html {
+    this.forEach(m => {
+      dom.toggleClass(m, str);
+    });
+    return this;
+  }
+
   attr(key: string | Object, value?: any): any {
     let attr;
     if (typeof key === 'string' && value) {
@@ -102,21 +122,25 @@ export class Html {
     });
   }
 
-  text (str: string): any {
+  text(): string;
+  text(str: string): Html;
+  text(str?: string): any {
     if (arguments.length === 0) {
       return this.length > 0 ? this.get(0).textContent : null;
     }
     return this.forEach(e => e.textContent = str);
   }
 
-  html(html: string): any {
+  html(): string;
+  html(html: string): Html;
+  html(html?: any): any {
     if (arguments.length === 0) {
       return this.length > 0 ? this.get(0).innerHTML : null;
     }
     return this.forEach(e => e.innerHTML = html);
   }
 
-  css(attr:string|any, value?:any) {
+  css(attr: string | any, value?: any) {
     if (arguments.length === 2) {
       return this.forEach(e => {
         if (attr in e.style) e.style[attr] = String(value);
@@ -124,7 +148,7 @@ export class Html {
     } else {
       return this.forEach(e => {
         for (let k in attr) {
-          
+
           if (k in e.style) e.style[k] = String(attr[k]);
         }
       });
@@ -142,15 +166,13 @@ export class Html {
   }
 
   remove(): Html {
-    return this.forEach( e => {
+    return this.forEach(e => {
       if (e.parentElement) e.parentElement.removeChild(e);
     })
   }
 
-  
-
   clone(): Html {
-    return new Html(this.map( m => m.cloneNode() as HTMLElement))
+    return new Html(this.map(m => m.cloneNode() as HTMLElement))
   }
 
   find(str: string): Html {
@@ -161,7 +183,7 @@ export class Html {
     return new Html(out);
   }
 
-  map<T>(fn: (elm: HTMLElement, index?:number) => T): T[] {
+  map<T>(fn: (elm: HTMLElement, index?: number) => T): T[] {
     let out: T[] = new Array(this.length)
     this.forEach((e, i) => {
       out[i] = fn(e, i);
@@ -173,4 +195,87 @@ export class Html {
     this._elements.forEach(fn);
     return this;
   }
+
+  on(name: string, callback: (e: Event) => void, useCap?: boolean) {
+    return this.forEach(e => {
+      let entries = domEvents.get(e);
+      if (!entries) {
+        entries = [];
+        domEvents.set(e, entries);
+      }
+      dom.addEventListener(e, name, callback, useCap);
+      entries.push({
+        event: name,
+        callback: callback
+      });
+
+    });
+  }
+
+  once(name:string, callback: (e: Event) => void, useCap?: boolean) {
+    return this.on(name, (e) => {
+      callback(e);
+      setTimeout(() => this.off(name, callback));
+    }, useCap);
+  }
+
+  off(name?: string, callback?: (e: Event) => void) {
+    if (!name) {
+      return this.forEach(el => {
+        let entries = domEvents.get(el);
+        if (entries) {
+          entries.forEach(e => {
+            dom.removeEventListener(el, e.event, e.callback);
+          });
+          domEvents.delete(el);
+        }
+      });
+    }
+
+    return this.forEach( el => {
+      let entries = domEvents.get(el);
+      if (!entries) return;
+      entries.forEach( (entry, index) => {
+        if (entry.event === name && (callback ? callback === entry.callback : true)) {
+          domEvents.get(el).splice(index, 1);
+        }
+      });
+      if (!domEvents.get(el).length) domEvents.delete(el); 
+    });
+  }
+
+  animationEnd(callback:(e:AnimationEvent) => void, timeout?:number) {
+    return this.forEach( el => {
+      dom.animationEnd(el, callback, null, timeout);
+    });
+  }
+
+  transitionEnd(callback:(e:TransitionEvent) => void, timeout?:number) {
+    return this.forEach( el => {
+      dom.transitionEnd(el, callback, null, timeout);
+    });
+  }
+
+  // Iterator
+  [Symbol.iterator]() {
+
+    let pointer = 0;
+    let components = this._elements;
+    let len = components.length;
+    return {
+
+      next(): IteratorResult<Element> {
+        let done = pointer >= len;
+        return {
+          done: done,
+          value: done ? null : components[pointer++]
+        }
+      }
+
+    }
+  }
+}
+
+export function html(query: string | HTMLElement | NodeList, context?: string | HTMLElement | NodeList): Html {
+  return Html.query(query, context);
 }

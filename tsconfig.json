@@ -6,7 +6,9 @@
         "sourceMap": false,
         "sourceRoot": "src",
         "outDir": "lib",
-        "declaration": true
+        "declaration": true,
+        "noUnusedLocals": true,
+        "noUnusedParameters": true
 
     },
     "files": [

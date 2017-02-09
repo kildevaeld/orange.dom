@@ -1,5 +1,7 @@
 import {Promise, IPromise} from 'orange'
 import {addEventListener, removeEventListener} from './dom';
+
+
 class LoadedImage {
   private __resolved:boolean = false;
   isLoaded: boolean

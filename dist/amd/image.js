@@ -9,8 +9,8 @@ define(["require", "exports", 'orange', './dom'], function (require, exports, or
 
     var LoadedImage = function () {
         function LoadedImage(img) {
-            var timeout = arguments.length <= 1 || arguments[1] === undefined ? 200 : arguments[1];
-            var retries = arguments.length <= 2 || arguments[2] === undefined ? 10 : arguments[2];
+            var timeout = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 200;
+            var retries = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 10;
 
             _classCallCheck(this, LoadedImage);
 

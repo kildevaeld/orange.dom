@@ -9,7 +9,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 define(["require", "exports", 'orange', './dom'], function (require, exports, orange_1, dom) {
     "use strict";
 
-    var domEvents;
     var singleTag = /^<([a-z][^\/\0>:\x20\t\r\n\f]*)[\x20\t\r\n\f]*\/?>(?:<\/\1>|)$/i;
     function parseHTML(html) {
         var parsed = singleTag.exec(html);
@@ -21,6 +20,7 @@ define(["require", "exports", 'orange', './dom'], function (require, exports, or
         var element = div.firstChild;
         return element;
     }
+    var domEvents = new Map();
 
     var Html = function () {
         function Html(el) {
@@ -33,7 +33,7 @@ define(["require", "exports", 'orange', './dom'], function (require, exports, or
         _createClass(Html, [{
             key: "get",
             value: function get(n) {
-                n = n === undefined ? 0 : n;
+                n = n === undefined || n < 0 ? 0 : n;
                 return n >= this.length ? undefined : this._elements[n];
             }
         }, {
@@ -56,6 +56,14 @@ define(["require", "exports", 'orange', './dom'], function (require, exports, or
                 return this._elements.reduce(function (p, c) {
                     return dom.hasClass(c, str);
                 }, false);
+            }
+        }, {
+            key: "toggleClass",
+            value: function toggleClass(str) {
+                this.forEach(function (m) {
+                    dom.toggleClass(m, str);
+                });
+                return this;
             }
         }, {
             key: "attr",
@@ -159,6 +167,91 @@ define(["require", "exports", 'orange', './dom'], function (require, exports, or
                 return this;
             }
         }, {
+            key: "on",
+            value: function on(name, callback, useCap) {
+                return this.forEach(function (e) {
+                    var entries = domEvents.get(e);
+                    if (!entries) {
+                        entries = [];
+                        domEvents.set(e, entries);
+                    }
+                    dom.addEventListener(e, name, callback, useCap);
+                    entries.push({
+                        event: name,
+                        callback: callback
+                    });
+                });
+            }
+        }, {
+            key: "once",
+            value: function once(name, callback, useCap) {
+                var _this = this;
+
+                return this.on(name, function (e) {
+                    callback(e);
+                    setTimeout(function () {
+                        return _this.off(name, callback);
+                    });
+                }, useCap);
+            }
+        }, {
+            key: "off",
+            value: function off(name, callback) {
+                if (!name) {
+                    return this.forEach(function (el) {
+                        var entries = domEvents.get(el);
+                        if (entries) {
+                            entries.forEach(function (e) {
+                                dom.removeEventListener(el, e.event, e.callback);
+                            });
+                            domEvents.delete(el);
+                        }
+                    });
+                }
+                return this.forEach(function (el) {
+                    var entries = domEvents.get(el);
+                    if (!entries) return;
+                    entries.forEach(function (entry, index) {
+                        if (entry.event === name && (callback ? callback === entry.callback : true)) {
+                            domEvents.get(el).splice(index, 1);
+                        }
+                    });
+                    if (!domEvents.get(el).length) domEvents.delete(el);
+                });
+            }
+        }, {
+            key: "animationEnd",
+            value: function animationEnd(callback, timeout) {
+                return this.forEach(function (el) {
+                    dom.animationEnd(el, callback, null, timeout);
+                });
+            }
+        }, {
+            key: "transitionEnd",
+            value: function transitionEnd(callback, timeout) {
+                return this.forEach(function (el) {
+                    dom.transitionEnd(el, callback, null, timeout);
+                });
+            }
+            // Iterator
+
+        }, {
+            key: Symbol.iterator,
+            value: function value() {
+                var pointer = 0;
+                var components = this._elements;
+                var len = components.length;
+                return {
+                    next: function next() {
+                        var done = pointer >= len;
+                        return {
+                            done: done,
+                            value: done ? null : components[pointer++]
+                        };
+                    }
+                };
+            }
+        }, {
             key: "length",
             get: function get() {
                 return this._elements.length;
@@ -192,10 +285,73 @@ define(["require", "exports", 'orange', './dom'], function (require, exports, or
                 }
                 return new Html(els);
             }
+        }, {
+            key: "removeAllEventListeners",
+            value: function removeAllEventListeners() {
+                var _iteratorNormalCompletion = true;
+                var _didIteratorError = false;
+                var _iteratorError = undefined;
+
+                try {
+                    for (var _iterator = domEvents.keys()[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+                        var el = _step.value;
+
+                        var entries = domEvents.get(el);
+                        var _iteratorNormalCompletion2 = true;
+                        var _didIteratorError2 = false;
+                        var _iteratorError2 = undefined;
+
+                        try {
+                            for (var _iterator2 = entries[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+                                var entry = _step2.value;
+
+                                dom.removeEventListener(el, entry.event, entry.callback);
+                            }
+                        } catch (err) {
+                            _didIteratorError2 = true;
+                            _iteratorError2 = err;
+                        } finally {
+                            try {
+                                if (!_iteratorNormalCompletion2 && _iterator2.return) {
+                                    _iterator2.return();
+                                }
+                            } finally {
+                                if (_didIteratorError2) {
+                                    throw _iteratorError2;
+                                }
+                            }
+                        }
+
+                        domEvents.delete(el);
+                    }
+                } catch (err) {
+                    _didIteratorError = true;
+                    _iteratorError = err;
+                } finally {
+                    try {
+                        if (!_iteratorNormalCompletion && _iterator.return) {
+                            _iterator.return();
+                        }
+                    } finally {
+                        if (_didIteratorError) {
+                            throw _iteratorError;
+                        }
+                    }
+                }
+            }
+        }, {
+            key: "_domEvents",
+            value: function _domEvents() {
+                return domEvents;
+            }
         }]);
 
         return Html;
     }();
 
     exports.Html = Html;
+    function html(query, context) {
+        return Html.query(query, context);
+    }
+    exports.html = html;
 });

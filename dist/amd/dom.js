@@ -49,7 +49,7 @@ define(["require", "exports", 'orange'], function (require, exports, orange_1) {
     }
     exports.matches = matches;
     function addEventListener(elm, eventName, listener) {
-        var useCap = arguments.length <= 3 || arguments[3] === undefined ? false : arguments[3];
+        var useCap = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : false;
 
         elementAddEventListener.call(elm, eventName, listener, useCap);
     }
@@ -132,6 +132,23 @@ define(["require", "exports", 'orange'], function (require, exports, orange_1) {
         return reg.test(elm.className);
     }
     exports.hasClass = hasClass;
+    function toggler(elm) {
+        if (elm.classList) return function (className) {
+            return elm.classList.toggle(className);
+        };
+        return function (className) {
+            if (hasClass(elm, className)) return removeClass(elm, className);
+            return addClass(elm, className);
+        };
+    }
+    function toggleClass(elm, classNames) {
+        var classList = classNames.split(' ');
+        var toggle = toggler(elm);
+        for (var i = 0, ii = classList.length; i < ii; i++) {
+            toggle(classList[i]);
+        }
+    }
+    exports.toggleClass = toggleClass;
     function selectionStart(elm) {
         if ('selectionStart' in elm) {
             // Standard-compliant browsers
