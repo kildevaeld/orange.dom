@@ -14,6 +14,8 @@ function parseHTML(html: string): HTMLElement {
   return element as HTMLElement;
 }
 
+
+
 const domEvents: Map<Element, {event:string;callback:(e:Event) => void}[]> = new Map();
 
 export class Html implements Iterable<Element> {
