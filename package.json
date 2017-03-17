@@ -19,6 +19,7 @@
     "gulp-typescript": "^2.13.6",
     "gulp-uglify": "^2.0.0",
     "merge2": "^1.0.2",
+    "typescript": "^2.2.1",
     "webpack-stream": "^3.2.0"
   },
   "jspm": {

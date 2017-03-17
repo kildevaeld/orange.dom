@@ -1,5 +1,5 @@
 // TODO: CreateHTML
-import {indexOf, unique} from 'orange'
+import {indexOf, unique} from './utils';
 
 var ElementProto: any = (typeof Element !== 'undefined' && Element.prototype) || {};
 

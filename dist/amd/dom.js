@@ -1,12 +1,13 @@
 "use strict";
 
-define(["require", "exports", 'orange'], function (require, exports, orange_1) {
+define(["require", "exports", "./utils"], function (require, exports, utils_1) {
     "use strict";
 
+    Object.defineProperty(exports, "__esModule", { value: true });
     var ElementProto = typeof Element !== 'undefined' && Element.prototype || {};
     var matchesSelector = ElementProto.matches || ElementProto.webkitMatchesSelector || ElementProto.mozMatchesSelector || ElementProto.msMatchesSelector || ElementProto.oMatchesSelector || function (selector) {
         var nodeList = (this.parentNode || document).querySelectorAll(selector) || [];
-        return !!~orange_1.indexOf(nodeList, this);
+        return !!~utils_1.indexOf(nodeList, this);
     };
     var elementAddEventListener = ElementProto.addEventListener || function (eventName, listener) {
         return this.attachEvent('on' + eventName, listener);
@@ -90,7 +91,7 @@ define(["require", "exports", 'orange'], function (require, exports, orange_1) {
             var match = item.eventName === eventName && (callback ? item.listener === callback : true) && (selector ? item.selector === selector : true);
             if (!match) continue;
             removeEventListener(elm, item.eventName, item.handler);
-            domEvents.splice(orange_1.indexOf(handlers, item), 1);
+            domEvents.splice(utils_1.indexOf(handlers, item), 1);
         }
     }
     exports.undelegate = undelegate;
@@ -102,7 +103,7 @@ define(["require", "exports", 'orange'], function (require, exports, orange_1) {
                 elm.classList.add(split[i].trim());
             }
         } else {
-            elm.className = orange_1.unique(elm.className.split(' ').concat(className.split(' '))).join(' ');
+            elm.className = utils_1.unique(elm.className.split(' ').concat(className.split(' '))).join(' ');
         }
     }
     exports.addClass = addClass;

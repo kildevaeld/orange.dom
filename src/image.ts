@@ -1,4 +1,4 @@
-import {Promise, IPromise} from 'orange'
+/*import {Promise, IPromise} from 'orange'
 import {addEventListener, removeEventListener} from './dom';
 
 
@@ -86,4 +86,4 @@ export function imageLoaded(img:HTMLImageElement, timeout?:number, retries?:numb
         resolve(i.isLoaded);
       });
     });
-  }
+  }*/

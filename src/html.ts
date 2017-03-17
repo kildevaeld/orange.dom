@@ -1,4 +1,4 @@
-import { isObject, slice } from 'orange';
+import { isObject, slice } from './utils';
 import * as dom from './dom';
 
 var singleTag = /^<([a-z][^\/\0>:\x20\t\r\n\f]*)[\x20\t\r\n\f]*\/?>(?:<\/\1>|)$/i;
@@ -16,7 +16,7 @@ function parseHTML(html: string): HTMLElement {
 
 
 
-const domEvents: Map<Element, {event:string;callback:(e:Event) => void}[]> = new Map();
+const domEvents: Map<Element, { event: string; callback: (e: Event) => void }[]> = new Map();
 
 export class Html implements Iterable<Element> {
 
@@ -214,7 +214,7 @@ export class Html implements Iterable<Element> {
     });
   }
 
-  once(name:string, callback: (e: Event) => void, useCap?: boolean) {
+  once(name: string, callback: (e: Event) => void, useCap?: boolean) {
     return this.on(name, (e) => {
       callback(e);
       setTimeout(() => this.off(name, callback));
@@ -234,26 +234,26 @@ export class Html implements Iterable<Element> {
       });
     }
 
-    return this.forEach( el => {
+    return this.forEach(el => {
       let entries = domEvents.get(el);
       if (!entries) return;
-      entries.forEach( (entry, index) => {
+      entries.forEach((entry, index) => {
         if (entry.event === name && (callback ? callback === entry.callback : true)) {
           domEvents.get(el).splice(index, 1);
         }
       });
-      if (!domEvents.get(el).length) domEvents.delete(el); 
+      if (!domEvents.get(el).length) domEvents.delete(el);
     });
   }
 
-  animationEnd(callback:(e:AnimationEvent) => void, timeout?:number) {
-    return this.forEach( el => {
+  animationEnd(callback: (e: AnimationEvent) => void, timeout?: number) {
+    return this.forEach(el => {
       dom.animationEnd(el, callback, null, timeout);
     });
   }
 
-  transitionEnd(callback:(e:TransitionEvent) => void, timeout?:number) {
-    return this.forEach( el => {
+  transitionEnd(callback: (e: TransitionEvent) => void, timeout?: number) {
+    return this.forEach(el => {
       dom.transitionEnd(el, callback, null, timeout);
     });
   }

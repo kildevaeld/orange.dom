@@ -12,7 +12,8 @@ const gulp = require('gulp'),
 
 gulp.task('typescript', () => {
     const project = tsc.createProject('./tsconfig.json', {
-        declaration: true
+        declaration: true,
+        typescript: require('typescript')
     });
     
     let result = project.src()
@@ -33,7 +34,8 @@ gulp.task('typescript', () => {
 gulp.task('typescript:amd', () => {
     const project = tsc.createProject('./tsconfig.json', {
         declaration: false,
-        module: 'amd'
+        module: 'amd',
+        typescript: require('typescript')
     });
     let result = project.src()
     .pipe(tsc(project))
@@ -69,10 +71,7 @@ gulp.task('bundle', ['typescript'], () => {
             library: ['orange','dom'],
             filename: 'orange.dom.js'
         },
-       
-        externals: {
-            orange: "orange"
-        }
+    
     }))
     .pipe(gulp.dest('dist'))
     

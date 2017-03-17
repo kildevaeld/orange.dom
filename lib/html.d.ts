@@ -6,7 +6,7 @@ export declare class Html implements Iterable<Element> {
         callback: (e: Event) => void;
     }[]>;
     private _elements;
-    length: number;
+    readonly length: number;
     constructor(el: HTMLElement[]);
     get(n: number): HTMLElement;
     addClass(str: string): Html;
